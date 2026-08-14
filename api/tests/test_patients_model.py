@@ -9,7 +9,9 @@ from src.patients.models import Patient
 
 async def test_patient_row_round_trips_with_generated_id_and_timestamps():
     engine = create_async_engine(
-        "sqlite+aiosqlite:///:memory:", poolclass=StaticPool, connect_args={"check_same_thread": False}
+        "sqlite+aiosqlite:///:memory:",
+        poolclass=StaticPool,
+        connect_args={"check_same_thread": False},
     )
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

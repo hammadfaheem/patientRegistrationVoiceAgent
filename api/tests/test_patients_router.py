@@ -38,12 +38,17 @@ async def test_get_patient_by_id_round_trips(client):
 async def test_get_missing_patient_returns_404_envelope(client):
     resp = await client.get("/patients/00000000-0000-0000-0000-000000000000")
     assert resp.status_code == 404
-    assert resp.json() == {"data": None, "error": "patient 00000000-0000-0000-0000-000000000000 not found"}
+    assert resp.json() == {
+        "data": None,
+        "error": "patient 00000000-0000-0000-0000-000000000000 not found",
+    }
 
 
 async def test_list_patients_filters_by_phone_number(client):
     await client.post("/patients", json=VALID)
-    await client.post("/patients", json={**VALID, "last_name": "Smith", "phone_number": "5559998888"})
+    await client.post(
+        "/patients", json={**VALID, "last_name": "Smith", "phone_number": "5559998888"}
+    )
 
     resp = await client.get("/patients", params={"phone_number": "555-123-4567"})
     assert resp.status_code == 200

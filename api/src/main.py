@@ -12,7 +12,9 @@ from src.exceptions import AppError
 from src.patients import models  # noqa: F401  (registers Patient with Base.metadata)
 from src.patients.router import router as patients_router
 
-logging.basicConfig(level=settings.LOG_LEVEL, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logging.basicConfig(
+    level=settings.LOG_LEVEL, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
