@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 from livekit import agents
 from livekit.agents import (
-    Agent,
     AgentServer,
     AgentSession,
     TurnHandlingOptions,
@@ -10,18 +9,9 @@ from livekit.agents import (
 )
 from livekit.plugins import ai_coustics
 
+from plugins.patient import PatientRegistrationAgent
+
 load_dotenv(".env.local")
-
-
-class Assistant(Agent):
-    def __init__(self) -> None:
-        super().__init__(
-            instructions="""You are a helpful voice AI assistant.
-            You eagerly assist users with their questions by providing information from your extensive knowledge.
-            Your responses are concise, to the point, and without any complex formatting or punctuation including emojis, asterisks, or other symbols.
-            You are curious, friendly, and have a sense of humor.""",
-        )
-
 
 server = AgentServer()
 
@@ -42,7 +32,7 @@ async def patient_registration_agent(ctx: agents.JobContext):
 
     await session.start(
         room=ctx.room,
-        agent=Assistant(),
+        agent=PatientRegistrationAgent(),
         room_options=room_io.RoomOptions(
             audio_input=room_io.AudioInputOptions(
                 noise_cancellation=ai_coustics.audio_enhancement(
@@ -52,7 +42,12 @@ async def patient_registration_agent(ctx: agents.JobContext):
         ),
     )
 
-    await session.generate_reply(instructions="Greet the user and offer your assistance.")
+    await session.generate_reply(
+        instructions=(
+            "Greet the caller warmly, introduce yourself as the practice's patient "
+            "registration assistant, and ask how you can help."
+        )
+    )
 
 
 if __name__ == "__main__":
