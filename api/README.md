@@ -43,8 +43,10 @@ uv run uvicorn src.main:app --reload --port 8000
 
 - **uv** for dependency/venv management — single lockfile, fast installs, already the
   scaffold in this repo.
-- **SQLite over Postgres**: single-table schema, no concurrent-writer concerns for a take-home
-  demo — Postgres would add deployment overhead with no functional benefit here.
+- **SQLite for local dev, Postgres in production**: single-table schema, no concurrent-writer
+  concerns for local development — SQLite is zero-setup there. Railway's container filesystem
+  is ephemeral, though, so production uses Railway's Postgres addon instead; `DATABASE_URL`
+  is the only thing that changes between the two (see `src/config.py`'s asyncpg URL rewrite).
 - **No Alembic**: the schema is fixed for this assessment; `Base.metadata.create_all` on
   startup is sufficient. Add Alembic the moment a second migration is needed.
 - **No auth**: not in scope per the assessment spec.
