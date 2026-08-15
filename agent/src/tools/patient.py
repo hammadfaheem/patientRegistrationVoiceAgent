@@ -13,6 +13,19 @@ from utils.logging import logger
 from utils.types import Sex
 
 
+def _validation_error_message(error: object) -> str:
+    """Turn a FastAPI validation error list into a per-field message the agent can act on."""
+    if not isinstance(error, list):
+        return str(error)
+    parts = []
+    for err in error:
+        loc = err.get("loc") or []
+        field = str(loc[-1]).replace("_", " ") if loc and loc[-1] != "body" else "a field"
+        msg = str(err.get("msg", "is invalid")).removeprefix("Value error, ")
+        parts.append(f"{field}: {msg}")
+    return "; ".join(parts) or str(error)
+
+
 @function_tool()
 async def lookup_patient_by_phone(
     context: RunContext,
@@ -124,8 +137,9 @@ async def create_patient(
     if response["error"] is not None:
         logger.error("create_patient failed: %s", response["error"])
         raise ToolError(
-            "I wasn't able to save that registration. Some information may not have "
-            "passed validation — please review the details with the caller and try again."
+            "I wasn't able to save that registration because of a problem with: "
+            f"{_validation_error_message(response['error'])}. Ask the caller to correct "
+            "only that, then try saving again."
         )
 
     return (response["data"] or {}).get("data")
@@ -231,8 +245,9 @@ async def update_patient(
     if response["error"] is not None:
         logger.error("update_patient failed: %s", response["error"])
         raise ToolError(
-            "I wasn't able to update that record. Some information may not have passed "
-            "validation — please review the details with the caller and try again."
+            "I wasn't able to update that record because of a problem with: "
+            f"{_validation_error_message(response['error'])}. Ask the caller to correct "
+            "only that, then try saving again."
         )
 
     return (response["data"] or {}).get("data")
