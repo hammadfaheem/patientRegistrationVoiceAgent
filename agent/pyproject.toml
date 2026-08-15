@@ -9,6 +9,7 @@ description = "Voice AI patient registration agent, built on LiveKit Agents"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "email-validator>=2.3.0",
     "livekit-agents>=1.6.9",
     "livekit-plugins-ai-coustics~=0.2",
     "python-dotenv",
