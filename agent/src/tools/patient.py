@@ -19,7 +19,7 @@ PATIENTS_URL = f"{config.api_base_url}/patients"
 @function_tool()
 async def lookup_patient_by_phone(
     context: RunContext,
-    phone_number: Annotated[str, Field(description="The caller's phone number, in any format.")],
+    phone_number: Annotated[str, Field(description="The caller's phone number, in E.164 format.")],
 ) -> dict:
     """Look up an existing patient record by phone number.
 
@@ -43,22 +43,54 @@ async def lookup_patient_by_phone(
 @function_tool()
 async def create_patient(
     context: RunContext,
-    first_name: str,
-    last_name: str,
-    date_of_birth: date,
-    sex: Sex,
-    phone_number: str,
-    address_line_1: str,
-    city: str,
-    state: str,
-    zip_code: str,
-    email: EmailStr | None = None,
-    address_line_2: str | None = None,
-    insurance_provider: str | None = None,
-    insurance_member_id: str | None = None,
-    preferred_language: str | None = None,
-    emergency_contact_name: str | None = None,
-    emergency_contact_phone: str | None = None,
+    first_name: Annotated[str, Field(description="The patient's first name.")],
+    last_name: Annotated[str, Field(description="The patient's last name.")],
+    date_of_birth: Annotated[
+        date, Field(description="The patient's date of birth. Must not be in the future.")
+    ],
+    sex: Annotated[
+        Sex, Field(description="The patient's sex: Male, Female, Other, or Decline to Answer.")
+    ],
+    phone_number: Annotated[str, Field(description="The patient's phone number, in any format.")],
+    address_line_1: Annotated[str, Field(description="The patient's street address.")],
+    city: Annotated[str, Field(description="The city of the patient's address.")],
+    state: Annotated[
+        str, Field(description="The patient's US state, as a 2-letter abbreviation (e.g. IL).")
+    ],
+    zip_code: Annotated[
+        str, Field(description="The patient's 5-digit ZIP code, or ZIP+4 (e.g. 62704-1234).")
+    ],
+    email: Annotated[
+        EmailStr | None, Field(description="The patient's email address, if provided.")
+    ] = None,
+    address_line_2: Annotated[
+        str | None, Field(description="Apartment, suite, or unit number, if applicable.")
+    ] = None,
+    insurance_provider: Annotated[
+        str | None,
+        Field(description="The patient's insurance provider name, if they opted to give it."),
+    ] = None,
+    insurance_member_id: Annotated[
+        str | None,
+        Field(
+            description="The patient's insurance member/subscriber ID, if they opted to give it."
+        ),
+    ] = None,
+    preferred_language: Annotated[
+        str | None,
+        Field(
+            description="The patient's preferred language, if they opted to give it. "
+            "Defaults to English."
+        ),
+    ] = None,
+    emergency_contact_name: Annotated[
+        str | None,
+        Field(description="Full name of the patient's emergency contact, if provided."),
+    ] = None,
+    emergency_contact_phone: Annotated[
+        str | None,
+        Field(description="Phone number of the patient's emergency contact, if provided."),
+    ] = None,
 ) -> dict:
     """Create a new patient record.
 
@@ -111,22 +143,65 @@ async def update_patient(
         str,
         Field(description="The existing patient's ID, from a prior lookup_patient_by_phone call."),
     ],
-    first_name: str | None = None,
-    last_name: str | None = None,
-    date_of_birth: date | None = None,
-    sex: Sex | None = None,
-    phone_number: str | None = None,
-    email: EmailStr | None = None,
-    address_line_1: str | None = None,
-    address_line_2: str | None = None,
-    city: str | None = None,
-    state: str | None = None,
-    zip_code: str | None = None,
-    insurance_provider: str | None = None,
-    insurance_member_id: str | None = None,
-    preferred_language: str | None = None,
-    emergency_contact_name: str | None = None,
-    emergency_contact_phone: str | None = None,
+    first_name: Annotated[
+        str | None, Field(description="The patient's first name, if it changed.")
+    ] = None,
+    last_name: Annotated[
+        str | None, Field(description="The patient's last name, if it changed.")
+    ] = None,
+    date_of_birth: Annotated[
+        date | None,
+        Field(description="The patient's date of birth, if it changed. Must not be in the future."),
+    ] = None,
+    sex: Annotated[
+        Sex | None,
+        Field(
+            description="The patient's sex, if it changed: Male, Female, Other, or Decline to Answer."
+        ),
+    ] = None,
+    phone_number: Annotated[
+        str | None, Field(description="The patient's phone number, if it changed, in any format.")
+    ] = None,
+    email: Annotated[
+        EmailStr | None, Field(description="The patient's email address, if it changed.")
+    ] = None,
+    address_line_1: Annotated[
+        str | None, Field(description="The patient's street address, if it changed.")
+    ] = None,
+    address_line_2: Annotated[
+        str | None, Field(description="Apartment, suite, or unit number, if it changed.")
+    ] = None,
+    city: Annotated[
+        str | None, Field(description="The city of the patient's address, if it changed.")
+    ] = None,
+    state: Annotated[
+        str | None,
+        Field(
+            description="The patient's US state, if it changed, as a 2-letter abbreviation (e.g. IL)."
+        ),
+    ] = None,
+    zip_code: Annotated[
+        str | None,
+        Field(description="The patient's ZIP code, if it changed (5-digit or ZIP+4)."),
+    ] = None,
+    insurance_provider: Annotated[
+        str | None, Field(description="The patient's insurance provider name, if it changed.")
+    ] = None,
+    insurance_member_id: Annotated[
+        str | None,
+        Field(description="The patient's insurance member/subscriber ID, if it changed."),
+    ] = None,
+    preferred_language: Annotated[
+        str | None, Field(description="The patient's preferred language, if it changed.")
+    ] = None,
+    emergency_contact_name: Annotated[
+        str | None,
+        Field(description="Full name of the patient's emergency contact, if it changed."),
+    ] = None,
+    emergency_contact_phone: Annotated[
+        str | None,
+        Field(description="Phone number of the patient's emergency contact, if it changed."),
+    ] = None,
 ) -> dict:
     """Update an existing patient's record.
 
