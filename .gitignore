@@ -7,3 +7,5 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 *.egg-info/
+Voice_AI_Agent_Coding_Challenge_Rewritten.md
+/docs
