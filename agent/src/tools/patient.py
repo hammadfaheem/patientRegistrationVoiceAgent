@@ -7,13 +7,10 @@ from livekit.agents import RunContext, function_tool
 from livekit.agents.llm import ToolError
 from pydantic import EmailStr, Field
 
-from utils.api import make_api_request
-from utils.config import config
+from plugins.patient import patient_api_client
 from utils.helpers import digits_only
 from utils.logging import logger
 from utils.types import Sex
-
-PATIENTS_URL = f"{config.api_base_url}/patients"
 
 
 @function_tool()
@@ -27,9 +24,7 @@ async def lookup_patient_by_phone(
     collecting any other information, to check whether they already have a
     record. Returns found=False if no matching patient exists.
     """
-    response = await make_api_request(
-        "GET", PATIENTS_URL, headers={}, params={"phone_number": digits_only(phone_number)}
-    )
+    response = await patient_api_client.lookup_by_phone(digits_only(phone_number))
     if response["error"] is not None:
         logger.error("lookup_patient_by_phone failed: %s", response["error"])
         raise ToolError(
@@ -125,7 +120,7 @@ async def create_patient(
     # null (as opposed to an absent key) fails its validation.
     payload = {k: v for k, v in fields.items() if v is not None}
 
-    response = await make_api_request("POST", PATIENTS_URL, headers={}, json=payload)
+    response = await patient_api_client.create(payload)
     if response["error"] is not None:
         logger.error("create_patient failed: %s", response["error"])
         raise ToolError(
@@ -232,9 +227,7 @@ async def update_patient(
     }
     payload = {k: v for k, v in fields.items() if v is not None}
 
-    response = await make_api_request(
-        "PUT", f"{PATIENTS_URL}/{patient_id}", headers={}, json=payload
-    )
+    response = await patient_api_client.update(patient_id, payload)
     if response["error"] is not None:
         logger.error("update_patient failed: %s", response["error"])
         raise ToolError(

@@ -1,7 +1,7 @@
 import pytest
 from livekit.agents import AgentSession, inference, mock_tools
 
-from plugins.patient import PatientRegistrationAgent
+from agent import PatientRegistrationAgent
 
 
 def _mock_lookup_no_match(phone_number: str) -> dict:

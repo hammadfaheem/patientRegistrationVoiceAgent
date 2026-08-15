@@ -1,54 +1,14 @@
-from dotenv import load_dotenv
-from livekit import agents
-from livekit.agents import (
-    AgentServer,
-    AgentSession,
-    TurnHandlingOptions,
-    inference,
-    room_io,
-)
-from livekit.plugins import ai_coustics
+"""The patient registration Agent: prompt + tools, wired together."""
 
-from plugins.patient import PatientRegistrationAgent
+from livekit.agents import Agent
 
-load_dotenv(".env.local")
-
-server = AgentServer()
+from prompts.patient import PATIENT_REGISTRATION_INSTRUCTIONS
+from tools.patient import create_patient, lookup_patient_by_phone, update_patient
 
 
-@server.rtc_session(agent_name="patient-registration-agent")
-async def patient_registration_agent(ctx: agents.JobContext):
-    session = AgentSession(
-        stt=inference.STT(model="deepgram/nova-3", language="multi"),
-        llm=inference.LLM(model="google/gemma-4-31b-it"),
-        tts=inference.TTS(
-            model="inworld/inworld-tts-2",
-            voice="Ashley",
-        ),
-        turn_handling=TurnHandlingOptions(
-            turn_detection=inference.TurnDetector(),
-        ),
-    )
-
-    await session.start(
-        room=ctx.room,
-        agent=PatientRegistrationAgent(),
-        room_options=room_io.RoomOptions(
-            audio_input=room_io.AudioInputOptions(
-                noise_cancellation=ai_coustics.audio_enhancement(
-                    model=ai_coustics.EnhancerModel.QUAIL_VF_S
-                ),
-            ),
-        ),
-    )
-
-    await session.generate_reply(
-        instructions=(
-            "Greet the caller warmly, introduce yourself as the practice's patient "
-            "registration assistant, and ask how you can help."
+class PatientRegistrationAgent(Agent):
+    def __init__(self) -> None:
+        super().__init__(
+            instructions=PATIENT_REGISTRATION_INSTRUCTIONS,
+            tools=[lookup_patient_by_phone, create_patient, update_patient],
         )
-    )
-
-
-if __name__ == "__main__":
-    agents.cli.run_app(server)
