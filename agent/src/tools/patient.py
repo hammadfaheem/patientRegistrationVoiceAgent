@@ -8,7 +8,6 @@ from livekit.agents.llm import ToolError
 from pydantic import EmailStr, Field
 
 from plugins.patient import patient_api_client
-from utils.helpers import digits_only
 from utils.logging import logger
 from utils.types import Sex
 
@@ -37,7 +36,7 @@ async def lookup_patient_by_phone(
     collecting any other information, to check whether they already have a
     record. Returns found=False if no matching patient exists.
     """
-    response = await patient_api_client.lookup_by_phone(digits_only(phone_number))
+    response = await patient_api_client.lookup_by_phone(phone_number)
     if response["error"] is not None:
         logger.error("lookup_patient_by_phone failed: %s", response["error"])
         raise ToolError(
@@ -113,7 +112,7 @@ async def create_patient(
         "last_name": last_name,
         "date_of_birth": date_of_birth.isoformat(),
         "sex": sex,
-        "phone_number": digits_only(phone_number),
+        "phone_number": phone_number,
         "address_line_1": address_line_1,
         "address_line_2": address_line_2,
         "city": city,
@@ -124,9 +123,7 @@ async def create_patient(
         "insurance_member_id": insurance_member_id,
         "preferred_language": preferred_language,
         "emergency_contact_name": emergency_contact_name,
-        "emergency_contact_phone": (
-            digits_only(emergency_contact_phone) if emergency_contact_phone else None
-        ),
+        "emergency_contact_phone": emergency_contact_phone,
     }
     # Omit unset optional fields entirely rather than sending explicit nulls —
     # the API's preferred_language is a plain `str` with a default, so a JSON
@@ -224,7 +221,7 @@ async def update_patient(
         "last_name": last_name,
         "date_of_birth": date_of_birth.isoformat() if date_of_birth else None,
         "sex": sex,
-        "phone_number": digits_only(phone_number) if phone_number else None,
+        "phone_number": phone_number,
         "email": email,
         "address_line_1": address_line_1,
         "address_line_2": address_line_2,
@@ -235,9 +232,7 @@ async def update_patient(
         "insurance_member_id": insurance_member_id,
         "preferred_language": preferred_language,
         "emergency_contact_name": emergency_contact_name,
-        "emergency_contact_phone": (
-            digits_only(emergency_contact_phone) if emergency_contact_phone else None
-        ),
+        "emergency_contact_phone": emergency_contact_phone,
     }
     payload = {k: v for k, v in fields.items() if v is not None}
 

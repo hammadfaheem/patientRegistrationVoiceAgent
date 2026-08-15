@@ -5,13 +5,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.patients.models import Patient
-from src.patients.schemas import PatientCreate, PatientUpdate
+from src.patients.schemas import PatientCreate, PatientUpdate, phone_digits
 
 logger = logging.getLogger(__name__)
-
-
-def _digits_only(value: str) -> str:
-    return "".join(ch for ch in value if ch.isdigit())
 
 
 async def list_patients(
@@ -26,7 +22,7 @@ async def list_patients(
     if date_of_birth:
         query = query.where(Patient.date_of_birth == date_of_birth)
     if phone_number:
-        query = query.where(Patient.phone_number == _digits_only(phone_number))
+        query = query.where(Patient.phone_number == phone_digits(phone_number))
     result = await db.execute(query)
     return list(result.scalars().all())
 

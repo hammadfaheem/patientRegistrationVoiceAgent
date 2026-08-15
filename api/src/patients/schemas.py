@@ -8,10 +8,18 @@ from src.patients.constants import NAME_PATTERN, US_STATE_CODES, ZIP_PATTERN
 Sex = Literal["Male", "Female", "Other", "Decline to Answer"]
 
 
+def phone_digits(value: str) -> str:
+    """Strip a phone number to digits, dropping a leading US country code."""
+    digits = "".join(ch for ch in value if ch.isdigit())
+    if len(digits) == 11 and digits[0] == "1":
+        digits = digits[1:]
+    return digits
+
+
 def _normalize_phone(value: str | None) -> str | None:
     if value is None:
         return None
-    digits = "".join(ch for ch in value if ch.isdigit())
+    digits = phone_digits(value)
     if len(digits) != 10:
         raise ValueError("phone number must contain exactly 10 digits")
     return digits

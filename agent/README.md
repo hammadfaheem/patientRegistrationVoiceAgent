@@ -57,8 +57,9 @@ though no LiveKit room connection is made.
   `api/` service's `/patients` endpoints. This is the only place that knows
   the API's URLs and HTTP verbs.
 - `src/utils/` — cross-cutting helpers: env loading, app config, shared
-  logger, phone digit-normalization, and the generic `make_api_request` HTTP
-  helper that `PatientApiClient` is built on.
+  logger, and the generic `make_api_request` HTTP helper that
+  `PatientApiClient` is built on. Phone number normalization lives in the
+  `api/` service, since it owns the stored/matched format.
 
 > Note: LiveKit's own tooling (Dockerfiles, deploy docs) defaults to
 > assuming `src/agent.py` is the entrypoint. Since this project runs
